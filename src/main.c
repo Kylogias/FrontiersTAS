@@ -18,12 +18,14 @@ HMODULE curDLL = NULL;
 // For TASing keyboard/mouse
 HWND gameWnd = NULL;
 
+HINSTANCE exeAddr = NULL;
+
 XINPUT_STATE lastGamepad[4] = {0};
 DWORD lastGPCode[4] = {0};
 
-HINSTANCE exeAddr = NULL;
-
 BOOL hasSetup = FALSE;
+
+FILE* logFile;
 
 BOOL CALLBACK enumerateWindows(HWND hWnd, LPARAM lParam) {
 	DWORD wndProcess = 0;
@@ -86,8 +88,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			// Frontiers doesn't have a console. Open our own and redirect stdin/stdout/stderr
 			AllocConsole();
 			freopen("CONIN$", "r", stdin);
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
+			freopen("CONOUT$", "w+", stdout);
+			freopen("CONOUT$", "w+", stderr);
 			break;
 		default:
 			break;

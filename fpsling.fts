@@ -1,0 +1,8 @@
+wait 4
+press LB
+wait 10
+leftstick 1.0 1.0
+press B
+wait 6
+hold RT
+wait 30

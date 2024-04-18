@@ -3,6 +3,22 @@
 
 #include "primdefs.h"
 
+#include <windows.h>
+#include <xinput.h>
+
+typedef DWORD(WINAPI *GetStateFunc)(DWORD, XINPUT_STATE*);
+typedef DWORD(WINAPI *SetStateFunc)(DWORD, XINPUT_VIBRATION*);
+
+extern GetStateFunc ogGetState;
+extern SetStateFunc ogSetState;
+extern HMODULE ogDLL;
+extern HMODULE curDLL;
+
+// For TASing keyboard/mouse
+extern HWND gameWnd;
+
+extern HINSTANCE exeAddr;
+
 typedef struct {
 	i64 sec;
 	i32 nano;
