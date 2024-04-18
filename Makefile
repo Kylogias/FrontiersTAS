@@ -6,7 +6,7 @@ SRCFILES := \
 CC := x86_64-w64-mingw32-gcc
 CFLAGS := -Wall -Wextra -Wpedantic -Wconversion -g
 CFLAGS += -fPIC
-LFLAGS := -shared -static -Wl,-rpath,.
+LFLAGS := -shared -static -Wl,-rpath,. -pthread
 
 OBJFOLDER := ./obj
 
