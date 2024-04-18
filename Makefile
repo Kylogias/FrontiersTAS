@@ -1,4 +1,4 @@
-DLLNAME := xinput_9_1_0.dll
+DLLNAME := xinput9_1_0.dll
 
 SRCFILES := \
 	main.c
