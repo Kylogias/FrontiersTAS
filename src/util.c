@@ -4,6 +4,7 @@
 i64 perfFreq = 0;
 
 void utilInit(void) {
+	// The performance counter is how you get time in Windows. The frequency is how many times a second it ticks
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 	perfFreq = freq.QuadPart;
@@ -12,7 +13,8 @@ void utilInit(void) {
 TimeValue getMonoTime(void) {
 	LARGE_INTEGER pc;
 	TimeValue tv;
-	
+
+	// Query the counter then divide by the frequency	
 	QueryPerformanceCounter(&pc);
 	i64 iPC = pc.QuadPart;
 	tv.sec = iPC / perfFreq;

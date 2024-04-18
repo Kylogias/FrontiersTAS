@@ -29,6 +29,9 @@ FILE* logFile;
 
 BOOL CALLBACK enumerateWindows(HWND hWnd, LPARAM lParam) {
 	DWORD wndProcess = 0;
+	
+	// Get the process of the window then check it against the Frontiers process
+	// If they match, we have the window
 	GetWindowThreadProcessId(hWnd, (LPDWORD)(&wndProcess));
 	if (wndProcess == lParam) {
 		gameWnd = hWnd;
@@ -38,29 +41,38 @@ BOOL CALLBACK enumerateWindows(HWND hWnd, LPARAM lParam) {
 }
 
 void firstTimeSetup(void) {
+	// Loop through every window (calls enumerateWindows for each window)
 	DWORD pid = GetCurrentProcessId();
 	EnumWindows(enumerateWindows, pid);
 
 	utilInit();
 	tasInit();
 
+	// Set the flag saying we shouldn't call this function again
 	hasSetup = TRUE;
 }
 
 DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-	// The window is created by the first call to XInputGetState
+	// By the time XInputGetState is first called, the window is created
+	// Find it for future KB+M TAS support
 	if (!hasSetup) firstTimeSetup();
+
+	// If the TAS believes we are ready for the next input, tick the TAS, setting the gamepad error code and the gamepad state
 	if (tasIsReady()) lastGPCode[dwUserIndex] = tasTick(dwUserIndex, &lastGamepad[dwUserIndex]);
 
+	// Return the gamepad state and gamepad error code
 	*pState = lastGamepad[dwUserIndex];
 	return lastGPCode[dwUserIndex];
 }
 
+// This function isn't necessary for TAS, but Frontiers uses it (for example, Cross Slash)
+// It just sets the rumble on the controller
 DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) {
 	printf("XInputSetState was called! Returning original function.\n");
 	return ogSetState(dwUserIndex, pVibration);	
 }
 
+// Entry point. We start here (also see XInputGetState)
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	char buf[PATH_MAX];
 
