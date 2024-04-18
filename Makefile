@@ -1,12 +1,14 @@
 DLLNAME := xinput9_1_0.dll
 
 SRCFILES := \
-	main.c
+	main.c \
+	util.c \
+	tas.c
 
 CC := x86_64-w64-mingw32-gcc
 CFLAGS := -Wall -Wextra -Wpedantic -Wconversion -g
 CFLAGS += -fPIC
-LFLAGS := -shared -static -Wl,-rpath,. -pthread
+LFLAGS := -shared -static -Wl,-rpath,.
 
 OBJFOLDER := ./obj
 

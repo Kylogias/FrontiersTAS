@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "util.h"
+#include "tas.h"
+
 typedef DWORD(WINAPI *GetStateFunc)(DWORD, XINPUT_STATE*);
 typedef DWORD(WINAPI *SetStateFunc)(DWORD, XINPUT_VIBRATION*);
 
@@ -12,46 +15,47 @@ SetStateFunc ogSetState = NULL;
 HMODULE ogDLL = NULL;
 HMODULE curDLL = NULL;
 
-struct timespec getTS;
-struct timespec setTS;
+// For TASing keyboard/mouse
+HWND gameWnd = NULL;
+
+XINPUT_STATE lastGamepad[4] = {0};
+DWORD lastGPCode[4] = {0};
+
+HINSTANCE exeAddr = NULL;
+
+BOOL hasSetup = FALSE;
+
+BOOL CALLBACK enumerateWindows(HWND hWnd, LPARAM lParam) {
+	DWORD wndProcess = 0;
+	GetWindowThreadProcessId(hWnd, (LPDWORD)(&wndProcess));
+	if (wndProcess == lParam) {
+		gameWnd = hWnd;
+		return FALSE;
+	}
+	return TRUE;
+}
+
+void firstTimeSetup(void) {
+	DWORD pid = GetCurrentProcessId();
+	EnumWindows(enumerateWindows, pid);
+
+	utilInit();
+	tasInit();
+
+	hasSetup = TRUE;
+}
 
 DWORD WINAPI XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-	// Get the current time. Technically not portable code but it is with my compiler
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
+	// The window is created by the first call to XInputGetState
+	if (!hasSetup) firstTimeSetup();
+	if (tasIsReady()) lastGPCode[dwUserIndex] = tasTick(dwUserIndex, &lastGamepad[dwUserIndex]);
 
-	// Calculate the nanosecond difference. If it is negative, add a billion and set the negative flag
-	long nano = ts.tv_nsec - getTS.tv_nsec;
-	BOOL nanNeg = FALSE;
-	if (nano < 0) {
-		nano += 1000000000;
-		nanNeg = TRUE;
-	}
-
-	// Calculate the second difference, taking into account the negative flag, then print alongside the nanosecond difference
-	printf("Get: %ld.%09ld\n", ts.tv_sec - getTS.tv_sec - nanNeg, nano);
-
-	getTS = ts;
-	return ogGetState(dwUserIndex, pState);
+	*pState = lastGamepad[dwUserIndex];
+	return lastGPCode[dwUserIndex];
 }
 
 DWORD WINAPI XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) {
-	// Get the current time. Technically not portable code but it is with my compiler
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-
-	// Calculate the nanosecond difference. If it is negative, add a billion and set the negative flag
-	long nano = ts.tv_nsec - setTS.tv_nsec;
-	BOOL nanNeg = FALSE;
-	if (nano < 0) {
-		nano += 1000000000;
-		nanNeg = TRUE;
-	}
-
-	// Calculate the second difference, taking into account the negative flag, then print alongside the nanosecond difference
-	printf("Set: %ld.%09ld\n", ts.tv_sec - setTS.tv_sec - nanNeg, nano);
-
-	setTS = ts;
+	printf("XInputSetState was called! Returning original function.\n");
 	return ogSetState(dwUserIndex, pVibration);	
 }
 
@@ -64,6 +68,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	// Store the DLL's handle
 	curDLL = hModule;
 
+	// Get the base address of the executable
+	exeAddr = GetModuleHandle(NULL);
+
 	switch (ul_reason_for_call) {
 		case DLL_PROCESS_ATTACH:
 			// Get the directory of the original DLL and load it
@@ -72,6 +79,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			ogDLL = LoadLibraryA(buf);
 
 			// Get the addresses of the original functions
+			// Technically there's more than just these two functions, but Frontiers doesn't use them
 			ogGetState = (GetStateFunc)GetProcAddress(ogDLL, "XInputGetState");
 			ogSetState = (SetStateFunc)GetProcAddress(ogDLL, "XInputSetState");
 
