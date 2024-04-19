@@ -121,7 +121,7 @@ void scriptTokenize(char* path, ScriptToken** toks, u32* tokCount) {
 							curTok.v1.i = SCRIPT_RIGHT; break;
 							break;
 						case 'S':
-							if (fData[i+2] == 'T') {curTok.v1.i = SCRIPT_START;} break;
+							if (fData[i+2] == 'T') {curTok.v1.i = SCRIPT_START; break;}
 							curTok.v1.i = SCRIPT_BACK; break;
 					}
 				}
@@ -190,18 +190,20 @@ void scriptParse(char* path, XINPUT_GAMEPAD** inpArray, u32* inpCount) {
 				break;
 			case TOKEN_SPAM:
 				spamInpFront |= 1 << tokens[i].v1.i;
+				break;
 			case TOKEN_IDLE:
 				pressInp = holdInp = spamInpFront = spamInpBack = 0;
 				curGP = (XINPUT_GAMEPAD){0};
 				break;
 			case TOKEN_WAIT:
-				curGP.wButtons = pressInp | holdInp | spamInpFront;
-				curGP.bLeftTrigger = 255 * !!(curGP.wButtons & 0x0400);
-				curGP.bRightTrigger = 255 * !!(curGP.wButtons & 0x0800);
-				curGP.wButtons &= 0xf3ff;
 				
 				for (u32 j = 0; j < tokens[i].v1.i; j++) {
+					curGP.wButtons = pressInp | holdInp | spamInpFront;
+					curGP.bLeftTrigger = 255 * !!(curGP.wButtons & 0x0400);
+					curGP.bRightTrigger = 255 * !!(curGP.wButtons & 0x0800);
+					curGP.wButtons &= 0xf3ff;
 					(*inpArray)[curInp] = curGP;
+	
 					curInp += 1;
 					pressInp &= 0;
 					u16 oldSpam = spamInpFront;

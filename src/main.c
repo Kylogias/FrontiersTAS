@@ -19,6 +19,8 @@ HMODULE curDLL = NULL;
 HWND gameWnd = NULL;
 
 HINSTANCE exeAddr = NULL;
+HANDLE exeProc = NULL;
+MODULEINFO exeInfo = {0};
 
 XINPUT_STATE lastGamepad[4] = {0};
 DWORD lastGPCode[4] = {0};
@@ -82,8 +84,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	// Store the DLL's handle
 	curDLL = hModule;
 
-	// Get the base address of the executable
+	// Get the base address and process of the executable
 	exeAddr = GetModuleHandle(NULL);
+	exeProc = GetCurrentProcess();
+
+	// Get the information about the executable
+	GetModuleInformation(exeProc, exeAddr, &exeInfo, sizeof(MODULEINFO));
 
 	switch (ul_reason_for_call) {
 		case DLL_PROCESS_ATTACH:
