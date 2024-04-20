@@ -17,7 +17,7 @@ Writing a TAS:
 		A,  B,  X,  Y,
 		U,  D,  L,  R,
 		LT, RT, LB, RB
-		ST, SE, LS, RS
+		ST, S,  LS, RS
 	The buttons may have any characters after them, but they are case sensitive
 
 Building the project:

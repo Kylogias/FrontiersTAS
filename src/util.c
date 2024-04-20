@@ -110,7 +110,7 @@ void rttiInit(void) {
 	vtCount = sigCount;
 
 	void* addr = exeAddr;
-	printf("VT count: %llu\n", sigCount);
+	printf("RTTI count: %llu\n", sigCount);
 	for (u64 i = 0; i < sigCount; i++) {
 		addr = sigScan((u8[]){0x2e, 0x3f, 0x41, 0x56}, (u8*)"XXXX", 4, addr, RTTILIMIT, 8);
 		if (addr == NULL) break;

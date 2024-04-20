@@ -114,10 +114,12 @@ void scriptTokenize(char* path, ScriptToken** toks, u32* tokCount) {
 						case 'L':
 							if (fData[i+2] == 'T') {curTok.v1.i = SCRIPT_LT; break;}
 							if (fData[i+2] == 'B') {curTok.v1.i = SCRIPT_LB; break;}
+							if (fData[i+2] == 'S') {curTok.v1.i = SCRIPT_LS; break;}
 							curTok.v1.i = SCRIPT_LEFT; break;
 						case 'R':
 							if (fData[i+2] == 'T') {curTok.v1.i = SCRIPT_RT; break;}
 							if (fData[i+2] == 'B') {curTok.v1.i = SCRIPT_RB; break;}
+							if (fData[i+2] == 'S') {curTok.v1.i = SCRIPT_RS; break;}
 							curTok.v1.i = SCRIPT_RIGHT; break;
 							break;
 						case 'S':
@@ -196,7 +198,6 @@ void scriptParse(char* path, XINPUT_GAMEPAD** inpArray, u32* inpCount) {
 				curGP = (XINPUT_GAMEPAD){0};
 				break;
 			case TOKEN_WAIT:
-				
 				for (u32 j = 0; j < tokens[i].v1.i; j++) {
 					curGP.wButtons = pressInp | holdInp | spamInpFront;
 					curGP.bLeftTrigger = 255 * !!(curGP.wButtons & 0x0400);
@@ -212,12 +213,12 @@ void scriptParse(char* path, XINPUT_GAMEPAD** inpArray, u32* inpCount) {
 				}
 				break;
 			case TOKEN_LSTICK:
-				curGP.sThumbLX = (i16)(tokens[i].v1.f*32768);
-				curGP.sThumbLY = (i16)(tokens[i].v2.f*32768);
+				curGP.sThumbLX = (i16)(tokens[i].v1.f*32767);
+				curGP.sThumbLY = (i16)(tokens[i].v2.f*32767);
 				break;
 			case TOKEN_RSTICK:
-				curGP.sThumbRX = (i16)(tokens[i].v1.f*32768);
-				curGP.sThumbRY = (i16)(tokens[i].v2.f*32768);
+				curGP.sThumbRX = (i16)(tokens[i].v1.f*32767);
+				curGP.sThumbRY = (i16)(tokens[i].v2.f*32767);
 				break;
 			case TOKEN_END:
 				break;
