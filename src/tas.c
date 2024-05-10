@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <stdio.h>
 
+#include "ui/ui_main.h"
+
 #include "util.h"
 
 #include "script.h"
@@ -32,25 +34,26 @@ bool tasCheckLoad(void) {
 				u8 array[64] = {0};
 				memcpy(array, (void*)APPLICATION, ApplicationSequenceCount*8);
 				u64 ASERTTI = (u64)rttiFind("ApplicationSequenceExtension@game@app@@");
-				intptr_t ASE = ((intptr_t*)array)[0];
+				intptr_t ASE = 0;
 				for (u8 i = 0; i < ApplicationSequenceCount; i++) {
 					intptr_t InstanceAddress = (intptr_t)(array + i*8);
-//					printf("InstanceAddress[%i]: %p ASERTTI: %p\n", i, *(u64*)InstanceAddress, ASERTTI);
-					if ((*(u64*)(InstanceAddress)) == ASERTTI) {
-						ASE = InstanceAddress;
+//					printf("InstanceAddress[%i]: %p ASERTTI: %p\n", i, **(u64**)InstanceAddress, ASERTTI);
+					if ((**(u64**)(InstanceAddress)) == ASERTTI) {
+						ASE = *(intptr_t*)InstanceAddress;
 					}
 				}
 				if (ASE != 0) {
 //					printf("ASE\n");
-					printf("LVLID 1: %s\n", ASE + 0xA0);
+					uiLevelID = (char*)ASE + 0xA0;
 					intptr_t GAMEMODE = (intptr_t)(*(u64*)(ASE + 0x78));
+					if (GAMEMODE == 0) return true;
 					intptr_t GME = (intptr_t)(*(u64*)(GAMEMODE + 0xB0));
 					if (GME != 0) {
 //						printf("GME\n");
-						printf("LVLID 2: %s\n", GAMEMODE + 0x100);
+//						printf("LVLID 2: %s\n", GAMEMODE + 0x100);
 						u8 GMECount = *(u8*)(GAMEMODE + 0xB0 + 0x8);
 						printf("GMECount: %i\n", GMECount);
-					}
+					} else return true;
 				}
 			}
 		}
@@ -59,6 +62,7 @@ bool tasCheckLoad(void) {
 }
 
 void tasInit(void) {
+	uiInit();
 	scriptInit();
 	lastTime = getMonoTime();
 
@@ -88,11 +92,13 @@ bool tasIsReady(void) {
 }
 
 DWORD tasTick(DWORD dwUserIndex, XINPUT_STATE* p) {
-	
+
 	// Print time since last tick
 	TimeValue curTime = getMonoTime();
-	printf("Delta: %f\n", getDelta(curTime, lastTime));
+	uiDelta = getDelta(curTime, lastTime);
 	lastTime = curTime;
+
+	uiTick();
 
 	// Allow the user to use the gamepad if the TAS isn't using it
 	if (!tasRunning) {

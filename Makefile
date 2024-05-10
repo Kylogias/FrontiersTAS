@@ -4,12 +4,13 @@ SRCFILES := \
 	main.c \
 	util.c \
 	tas.c \
-	script.c
+	script.c \
+	ui/ui_main.c
 
 CC := x86_64-w64-mingw32-gcc
 CFLAGS := -Wall -Wextra -Wpedantic -Wconversion -g
 CFLAGS += -fPIC
-LFLAGS := -shared -static -Wl,-rpath,. -lpsapi
+LFLAGS := -shared -static -Wl,-rpath,. -lpsapi -luser32 -lgdi32
 
 OBJFOLDER := ./obj
 
