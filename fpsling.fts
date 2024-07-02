@@ -1,8 +1,55 @@
-wait 4
-press LB
-wait 10
-leftstick 1.0 1.0
-press B
-wait 6
+hold LT 
 hold RT
+press SELECT
+idle
+wait 218
+hold LT hold RT hold A
+
+
+release LT release RT release A
+
+leftstick 0.0 1.0
+
+
+
+
+
+hold LT
+hold RT
+release LT release RT
+wait 40
+leftstick -0.5 1.0 hold RB
+hold RT
+wait 25
+leftstick 0.0 1.0
+wait 35
+leftstick -0.5 1.0
 wait 30
+release RB hold LB
+leftstick 0.0 1.0
+wait 40
+release LB hold RB
+wait 30
+leftstick -0.5 1.0
+wait 50
+leftstick 0.5 1.0
+wait 15
+leftstick -0.5 1.0
+wait 15
+leftstick 0.5 1.0
+release RB hold LB
+wait 33
+release LB
+leftstick 0.125 1.0 hold LT
+
+hold A
+release LT
+wait 15
+hold LT
+wait 60
+leftstick -1.0 -1.0
+wait 60
+leftstick -1.0 0.0
+wait 15
+leftstick 0.0 1.0
+wait 60

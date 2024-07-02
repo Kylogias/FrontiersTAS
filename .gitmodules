@@ -1,6 +1,3 @@
 [submodule "src/ui/rawdraw"]
 	path = src/ui/rawdraw
 	url = https://github.com/cntools/rawdraw.git
-[submodule "src/ui/nuklear"]
-	path = src/ui/nuklear
-	url = https://github.com/Immediate-Mode-UI/nuklear.git
